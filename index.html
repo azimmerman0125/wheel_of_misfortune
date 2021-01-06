@@ -39,15 +39,16 @@
 </head>
 
 <body class="bg-info">
-    <h1 class="text-center text-capitalize">Wheel of Misfortune</h1>
+    <h1 class="text-center text-capitalize">Wheel of Operations</h1>
     <div class="container-fluid">
         <div id="content" class="row">
             <svg width="600" height="500"></svg>
             <div id="panel">
                 <fieldset style="border: 1px black solid">
-                    <legend style="border: 1px black solid;margin-left: 1em; padding: 0.2em 0.8em ">Wheel</legend>
-                    <button type="button" id="stopWheel" class="btn btn-success">Misfortune</button>
-                    <button type="button" id="reload" class="btn btn-danger" onclick="location.reload();">Do again</button>
+                    <legend style="border: 1px black solid;margin-left: 1em; padding: 0.2em 0.8em ">Controls</legend>
+                    <button type="button" id="startWheel" class="btn btn-success">Start</button>
+                    <button type="button" id="stopWheel" class="btn btn-success">Stop</button>
+                    <button type="button" id="reload" class="btn btn-danger" onclick="location.reload();">Reset</button>
                 </fieldset>
                 <div id="tooltip" style="opacity:0">
                     <fieldset style="border: 1px black solid">
@@ -60,7 +61,7 @@
     </div>
     <script>
         //Set the default text for the button
-        d3.select("#stopWheel").attr("disabled", null);
+        d3.select("#stopWheel").attr("disabled", true);
         d3.select("#reload").attr("disabled", true);
         //Set up the svg canvas and rotation
         var svg = d3.select("svg"),
@@ -69,19 +70,7 @@
             radius = Math.min(width, height) / 2,
             g = svg.append("g")
             .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
-            .attr("id", "maing"),
-            transform = g.append("animateTransform")
-            .attr("id", "animation")
-            .attr("attributeType", "xml")
-            .attr("attributeName", "transform")
-            .attr("type", "rotate")
-            .attr("from", "0")
-            .attr("to", "360")
-            .attr("additive", "sum")
-            .attr("accumulative", "sum")
-            .attr("fill", "freeze")
-            .attr("dur", "5")
-            .attr("repeatCount", "indefinite");
+            .attr("id", "maing");
 
         // Add the black arrow to point the value
         d3.select("svg").append("g").attr("transform", "translate(" + (width - (0.05 * width)) + "," + height / 2 + ")").attr("transform", function(d) {
@@ -112,7 +101,7 @@
             .innerRadius(radius - 40);
 
         //Set the pie parts with values from the json file
-        d3.json("data/events.json", function(error, data) {
+        d3.json("/data/events.json", function(error, data) {
             if (error) throw error;
 
             var arc = g.selectAll(".arc")
@@ -157,7 +146,30 @@
                 svgDoc[0].pauseAnimations();
                 d3.select("#reload").attr("disabled", null);
                 d3.select("#stopWheel").html("Stopped");
+                d3.select("#startWheel").html("Start").attr("disabled", true);
             }, suspens);
+        });
+
+        //Set the action to start the wheel spinning
+        d3.select("#startWheel").on('click', function() {
+            d3.select("#startWheel").attr("disabled", true).html("Spinning...");
+            d3.select("#stopWheel").html("Stop").attr("disabled", null);
+            svg = d3.select("svg"),
+            width = +svg.attr("width"),
+            height = +svg.attr("height"),
+            radius = Math.min(width, height) / 2,
+            transform = g.append("animateTransform")
+            .attr("id", "animation")
+            .attr("attributeType", "xml")
+            .attr("attributeName", "transform")
+            .attr("type", "rotate")
+            .attr("from", "0")
+            .attr("to", "360")
+            .attr("additive", "sum")
+            .attr("accumulative", "sum")
+            .attr("fill", "freeze")
+            .attr("dur", "5")
+            .attr("repeatCount", "indefinite");
         });
     </script>
 </body>
